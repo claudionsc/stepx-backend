@@ -37,10 +37,10 @@ export class ShoesService implements OnModuleInit {
 
                     await this.imageModel.bulkCreate(
                         [
-                            { url: shoeName.key , shoeId: shoeName.id },
-                            { url: shoeName.key , shoeId: shoeName.id },
-                            { url: shoeName.key , shoeId: shoeName.id },
-                            { url: shoeName.key , shoeId: shoeName.id },
+                            { url: ShoeList[i].img.img01, shoeId: shoeName.id },
+                            { url: ShoeList[i].img.img02, shoeId: shoeName.id },
+                            { url: ShoeList[i].img.img03, shoeId: shoeName.id },
+                            { url: ShoeList[i].img.img04, shoeId: shoeName.id },
                         ]
                     )
                 }
@@ -79,6 +79,12 @@ export class ShoesService implements OnModuleInit {
             where: {
                 id,
             },
+            include: [
+                {
+                    model: Image,
+                    required: false,
+                },
+            ],
         });
     }
 }

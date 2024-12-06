@@ -3,11 +3,11 @@ import { ShoesService } from "./shoes.service";
 import { Shoe } from "./models/shoe.model";
 import { ShoeDTO } from "./DTO/shoes";
 
-@Controller()
+@Controller('shoes')
 export class ShoeController{
     constructor(private readonly shoesService: ShoesService) {}
 
-    @Get('/shoes')
+    @Get()
     async findAll(): Promise<Shoe[]>{
         return this.shoesService.findAll();
     }
@@ -23,7 +23,7 @@ export class ShoeController{
         return shoe
     }
 
-    @Post('/shoes')
+    @Post(  )
     async create(
         @Body() shoeDTO: ShoeDTO,
     ): Promise<Shoe>{
