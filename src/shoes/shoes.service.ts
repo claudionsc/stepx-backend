@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, OnModuleInit } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
 import { Shoe } from "./models/shoe.model";
 import { Image } from "src/images/models/images.model";
@@ -6,13 +6,12 @@ import { Sequelize } from "sequelize-typescript";
 import { ShoeDTO } from "./DTO/shoes";
 
 @Injectable()
-export class ShoesService {
+export class ShoesService implements OnModuleInit {
 
     constructor(
-        @InjectModel(Shoe)
-        private sequelize: Sequelize,
-        private shoeModel: typeof Shoe,
-        private readonly imageModel: typeof Image,
+        @InjectModel(Shoe) private readonly shoeModel: typeof Shoe, // Modelo Shoe
+        @InjectModel(Image) private readonly imageModel: typeof Image, // Modelo Image
+        private readonly sequelize: Sequelize // Sequelize para transações
     ) { }
 
     create(ShoeDTO: ShoeDTO): Promise<Shoe> {
@@ -69,6 +68,17 @@ export class ShoesService {
             console.error('Erro ao criar os dados:', err);
         }
     }
+
+    async onModuleInit() {
+        // Verificar se existem dados na tabela e, caso não existam, criar
+        const count = await this.shoeModel.count(); // Conta os registros
+        if (count === 0) {
+          console.log('Inicializando dados padrão...');
+          await this.createMany(); // Executa a criação de dados
+        } else {
+          console.log('Dados já existentes no banco.');
+        }
+      } 
 
     async findAll(): Promise<Shoe[]> {
         return this.shoeModel.findAll();
