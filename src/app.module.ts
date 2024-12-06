@@ -13,6 +13,8 @@ import { SequelizeModule } from '@nestjs/sequelize';
       password: 'root',
       database: 'stepx-db',
       models: [],
+      autoLoadModels: true,
+      synchronize: true,
     }),
   ],
   controllers: [AppController],
