@@ -1,20 +1,24 @@
 import { Body, Controller, Get, NotFoundException, Param, Post } from "@nestjs/common";
-import { ShoesService } from "./shoes.service";
+import { ShoesCommandService, ShoesQueryService } from "./shoes.service";
 import { Shoe } from "./models/shoe.model";
 import { ShoeDTO } from "./DTO/shoes";
 
 @Controller('shoes')
 export class ShoeController{
-    constructor(private readonly shoesService: ShoesService) {}
+    constructor(
+        private readonly shoesCommandService: ShoesCommandService,
+        private readonly shoesQueryService: ShoesQueryService
+    ) {}
+   
 
     @Get()
     async findAll(): Promise<Shoe[]>{
-        return this.shoesService.findAll();
+        return this.shoesQueryService.findAll();
     }
 
     @Get(':id')
     async findOne(@Param('id') id: number): Promise<Shoe>{
-        const shoe = await this.shoesService.findOne(id);
+        const shoe = await this.shoesQueryService.findOne(id);
 
         if (!shoe) {
             throw new NotFoundException('This Post doesn\'t exist');
@@ -27,6 +31,6 @@ export class ShoeController{
     async create(
         @Body() shoeDTO: ShoeDTO,
     ): Promise<Shoe>{
-        return this.shoesService.create(shoeDTO)
+        return this.shoesCommandService.create(shoeDTO)
     }
 }

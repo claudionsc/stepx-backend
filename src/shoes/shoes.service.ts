@@ -44,37 +44,15 @@ export class ShoeSeeder {
 
 }
 
+// Dividindo as responsabilidades da class em criação e consulta
+
+// Consulta
 @Injectable()
-export class ShoesService implements OnModuleInit {
+export class ShoesQueryService  {
 
     constructor(
         @InjectModel(Shoe) private readonly shoeModel: typeof Shoe, // Modelo Shoe
-        @InjectModel(Image) private readonly imageModel: typeof Image, // Modelo Image
-        private readonly sequelize: Sequelize // Sequelize para transações
     ) { }
-
-    create(ShoeDTO: ShoeDTO): Promise<Shoe> {
-        return this.shoeModel.create({
-            key: ShoeDTO.key,
-            nome: ShoeDTO.nome,
-            preco: ShoeDTO.preco,
-            img: ShoeDTO.img,
-            tamanhos: ShoeDTO.tamanhos
-        })
-    }
-
-
-    async onModuleInit() {
-        // Verificar se existem dados na tabela e, caso não existam, criar
-        const count = await this.shoeModel.count(); // Conta os registros
-        if (count === 0) {
-            console.log('Inicializando dados padrão...');
-            const shoeSeeder = new ShoeSeeder(Shoe, Image, this.sequelize);
-            await shoeSeeder.seedDatabase(ShoeList); // Executa a criação de dados
-        } else {
-            console.log('Dados já existentes no banco.');
-        }
-    }
 
     async findAll(): Promise<Shoe[]> {
         return this.shoeModel.findAll({
@@ -103,3 +81,37 @@ export class ShoesService implements OnModuleInit {
     }
 }
 
+// Criação
+@Injectable()
+export class ShoesCommandService implements OnModuleInit {
+
+    constructor(
+        @InjectModel(Shoe) private readonly shoeModel: typeof Shoe, // Modelo Shoe
+        @InjectModel(Shoe) private readonly imageModel: typeof Image, // Modelo Shoe
+        private readonly sequelize: Sequelize
+    ) { }
+
+    create(ShoeDTO: ShoeDTO): Promise<Shoe> {
+        return this.shoeModel.create({
+            key: ShoeDTO.key,
+            nome: ShoeDTO.nome,
+            preco: ShoeDTO.preco,
+            img: ShoeDTO.img,
+            tamanhos: ShoeDTO.tamanhos
+        })
+    }
+
+
+    async onModuleInit() {
+        // Verificar se existem dados na tabela e, caso não existam, criar
+        const count = await this.shoeModel.count(); // Conta os registros
+        if (count === 0) {
+            console.log('Inicializando dados padrão...');
+            const shoeSeeder = new ShoeSeeder(Shoe, Image, this.sequelize);
+            await shoeSeeder.seedDatabase(ShoeList); // Executa a criação de dados
+        } else {
+            console.log('Dados já existentes no banco.');
+        }
+    }
+
+}
