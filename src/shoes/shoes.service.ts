@@ -4,6 +4,7 @@ import { Shoe } from "./models/shoe.model";
 import { Image } from "src/images/models/images.model";
 import { Sequelize } from "sequelize-typescript";
 import { ShoeDTO } from "./DTO/shoes";
+import { ShoeList } from "./mock/shoe.mock";
 
 @Injectable()
 export class ShoesService implements OnModuleInit {
@@ -29,37 +30,20 @@ export class ShoesService implements OnModuleInit {
             await this.sequelize.transaction(async t => {
                 const transactionHost = { transaction: t }
 
-                // newbalance550
+                for (let i = 0; i < ShoeList.length; i++) {
+                    const shoeName = await this.shoeModel.create(
+                        ShoeList[i]
+                    )
 
-                const newbalance550 = await this.shoeModel.create(
-                    { key: 'newbalance-550', nome: 'Tênis New Balance 550 Masculino', preco: 999.99, tamanhos: [35, 36, 37, 38, 39, 40, 41, 42, 43] },
-                    transactionHost,
-                )
-
-                await this.imageModel.bulkCreate(
-                    [
-                        { url: 'NB01', shoeId: newbalance550.id },
-                        { url: 'NB02', shoeId: newbalance550.id },
-                        { url: 'NB03', shoeId: newbalance550.id },
-                        { url: 'NB04', shoeId: newbalance550.id },
-                    ],
-                    transactionHost,
-                );
-
-                const nikeMethod = await this.shoeModel.create(
-                    { key: 'nike-metcon8', nome: 'Tênis Nike Metcon 8 Masculino', preco: 1299.99, tamanhos: [36, 37, 38, 39, 40, 41, 42, 43, 44, 46] },
-                    transactionHost,
-                )
-
-                await this.imageModel.bulkCreate(
-                    [
-                        { url: 'NKMET801', shoeId: nikeMethod.id },
-                        { url: 'NKMET801', shoeId: nikeMethod.id },
-                        { url: 'NKMET801', shoeId: nikeMethod.id },
-                        { url: 'NKMET801', shoeId: nikeMethod.id },
-                    ],
-                    transactionHost,
-                );
+                    await this.imageModel.bulkCreate(
+                        [
+                            { url: shoeName.key , shoeId: shoeName.id },
+                            { url: shoeName.key , shoeId: shoeName.id },
+                            { url: shoeName.key , shoeId: shoeName.id },
+                            { url: shoeName.key , shoeId: shoeName.id },
+                        ]
+                    )
+                }
             })
         } catch (err) {
 
@@ -71,14 +55,14 @@ export class ShoesService implements OnModuleInit {
         // Verificar se existem dados na tabela e, caso não existam, criar
         const count = await this.shoeModel.count(); // Conta os registros
         if (count === 0) {
-          console.log('Inicializando dados padrão...');
-          await this.createMany(); // Executa a criação de dados
+            console.log('Inicializando dados padrão...');
+            await this.createMany(); // Executa a criação de dados
         } else {
-          console.log('Dados já existentes no banco.');
+            console.log('Dados já existentes no banco.');
         }
-      } 
+    }
 
-      async findAll(): Promise<Shoe[]> {
+    async findAll(): Promise<Shoe[]> {
         return this.shoeModel.findAll({
             include: [
                 {
@@ -88,7 +72,7 @@ export class ShoesService implements OnModuleInit {
             ],
         });
     }
-    
+
 
     findOne(id: number): Promise<Shoe> {
         return this.shoeModel.findOne({
