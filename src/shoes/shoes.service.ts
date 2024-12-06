@@ -15,32 +15,47 @@ export class ShoeSeeder {
         private readonly sequelize: Sequelize
     ) { }
 
-    async seedDatabase(ShoeList: ShoeDTO[]): Promise<void> {
-
+    async seedDatabase(shoeList: ShoeDTO[]): Promise<void> {
         try {
-            await this.sequelize.transaction(async t => {
-                const transactionHost = { transaction: t }
-
-                for (let i = 0; i < ShoeList.length; i++) {
-                    const shoeName = await this.shoeModel.create(
-                        ShoeList[i]
-                    )
-
-                    await this.imageModel.bulkCreate(
-                        [
-                            { url: ShoeList[i].img.img01, shoeId: shoeName.id },
-                            { url: ShoeList[i].img.img02, shoeId: shoeName.id },
-                            { url: ShoeList[i].img.img03, shoeId: shoeName.id },
-                            { url: ShoeList[i].img.img04, shoeId: shoeName.id },
-                        ]
-                    )
-                }
-            })
+            await this.sequelize.transaction(async (t) => {
+                const transactionHost = { transaction: t };
+    
+                // Mapeia os dados de sapatos e imagens em arrays
+                const shoeRecords = shoeList.map(shoe => ({
+                    key: shoe.key,
+                    nome: shoe.nome,
+                    preco: shoe.preco,
+                    tamanhos: shoe.tamanhos,
+                }));
+    
+                // Cria todos os sapatos em uma única chamada
+                const createdShoes = await this.shoeModel.bulkCreate(shoeRecords, {
+                    ...transactionHost,
+                    returning: true, // Para retornar os sapatos criados com os IDs
+                });
+    
+                // Cria as imagens correspondentes a partir dos sapatos criados
+                const imageRecords = [];
+                createdShoes.forEach((shoe, index) => {
+                    const images = shoeList[index].img; // Recupera as imagens do sapato correspondente
+                    if (images) {
+                        imageRecords.push(
+                            { url: images.img01, shoeId: shoe.id },
+                            { url: images.img02, shoeId: shoe.id },
+                            { url: images.img03, shoeId: shoe.id },
+                            { url: images.img04, shoeId: shoe.id }
+                        );
+                    }
+                });
+    
+                // Insere todas as imagens em uma única chamada
+                await this.imageModel.bulkCreate(imageRecords, transactionHost);
+            });
         } catch (err) {
-
             console.error('Erro ao criar os dados:', err);
         }
     }
+    
 
 }
 
@@ -48,7 +63,7 @@ export class ShoeSeeder {
 
 // Consulta
 @Injectable()
-export class ShoesQueryService  {
+export class ShoesQueryService {
 
     constructor(
         @InjectModel(Shoe) private readonly shoeModel: typeof Shoe, // Modelo Shoe
@@ -59,7 +74,7 @@ export class ShoesQueryService  {
             include: [
                 {
                     model: Image,  // Relacionamento com o modelo Image
-                    required: false,  
+                    required: false,
                 },
             ],
         });
