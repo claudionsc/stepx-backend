@@ -8,7 +8,7 @@ export class ShoeController{
     constructor(private readonly shoesService: ShoesService) {}
 
     @Get('/shoes')
-    async finAll(): Promise<Shoe[]>{
+    async findAll(): Promise<Shoe[]>{
         return this.shoesService.findAll();
     }
 

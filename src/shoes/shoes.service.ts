@@ -62,8 +62,6 @@ export class ShoesService implements OnModuleInit {
                 );
             })
         } catch (err) {
-            // Transaction has been rolled back
-            // err is whatever rejected the promise chain returned to the transaction callback
 
             console.error('Erro ao criar os dados:', err);
         }
@@ -80,9 +78,17 @@ export class ShoesService implements OnModuleInit {
         }
       } 
 
-    async findAll(): Promise<Shoe[]> {
-        return this.shoeModel.findAll();
+      async findAll(): Promise<Shoe[]> {
+        return this.shoeModel.findAll({
+            include: [
+                {
+                    model: Image,  // Relacionamento com o modelo Image
+                    required: false,  // As imagens não são obrigatórias, então pode ser false
+                },
+            ],
+        });
     }
+    
 
     findOne(id: number): Promise<Shoe> {
         return this.shoeModel.findOne({

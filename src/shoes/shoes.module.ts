@@ -12,6 +12,7 @@ import { Image } from "src/images/models/images.model";
       ],
       providers: [ShoesService],
       exports: [ShoesService],
+      controllers: [ShoeController]
 })
 
 export class ShoeModule {}
