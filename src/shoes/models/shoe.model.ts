@@ -1,23 +1,40 @@
-import { Column, HasMany, Model, Table } from 'sequelize-typescript'
-import { Images } from 'src/images/models/images.model';
+import { Table, Column, Model, DataType, HasMany } from 'sequelize-typescript';
+import { Image } from 'src/images/models/images.model';
 
 @Table
 export class Shoe extends Model {
-    @Column
-    key: string;
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  key: string;
 
-    @Column
-    id: number;
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+    primaryKey: true,
+    autoIncrement: true,
+  })
+  id: number;
 
-    @Column
-    name: string;
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  nome: string;
 
-    @Column
-    preco: number;
+  @Column({
+    type: DataType.FLOAT,
+    allowNull: false,
+  })
+  preco: number;
 
-    @Column
-    tamanhos: Array<Number>;
+  @HasMany(() => Image) // Define a relação com o modelo Image
+  imagens: Image[];
 
-    @HasMany(() => Images)
-    img: Images[];
+  @Column({
+    type: DataType.ARRAY(DataType.INTEGER),
+    allowNull: false,
+  })
+  tamanhos: number[];
 }
