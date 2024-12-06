@@ -6,26 +6,17 @@ import { Sequelize } from "sequelize-typescript";
 import { ShoeDTO } from "./DTO/shoes";
 import { ShoeList } from "./mock/shoe.mock";
 
+// Seeder para inicialização de dados
 @Injectable()
-export class ShoesService implements OnModuleInit {
-
+export class ShoeSeeder {
     constructor(
-        @InjectModel(Shoe) private readonly shoeModel: typeof Shoe, // Modelo Shoe
-        @InjectModel(Image) private readonly imageModel: typeof Image, // Modelo Image
-        private readonly sequelize: Sequelize // Sequelize para transações
+        @InjectModel(Shoe) private readonly shoeModel: typeof Shoe,
+        @InjectModel(Image) private readonly imageModel: typeof Image,
+        private readonly sequelize: Sequelize
     ) { }
 
-    create(ShoeDTO: ShoeDTO): Promise<Shoe> {
-        return this.shoeModel.create({
-            key: ShoeDTO.key,
-            nome: ShoeDTO.nome,
-            preco: ShoeDTO.preco,
-            img: ShoeDTO.img,
-            tamanhos: ShoeDTO.tamanhos
-        })
-    }
+    async seedDatabase(ShoeList: ShoeDTO[]): Promise<void> {
 
-    async createMany() {
         try {
             await this.sequelize.transaction(async t => {
                 const transactionHost = { transaction: t }
@@ -51,12 +42,35 @@ export class ShoesService implements OnModuleInit {
         }
     }
 
+}
+
+@Injectable()
+export class ShoesService implements OnModuleInit {
+
+    constructor(
+        @InjectModel(Shoe) private readonly shoeModel: typeof Shoe, // Modelo Shoe
+        @InjectModel(Image) private readonly imageModel: typeof Image, // Modelo Image
+        private readonly sequelize: Sequelize // Sequelize para transações
+    ) { }
+
+    create(ShoeDTO: ShoeDTO): Promise<Shoe> {
+        return this.shoeModel.create({
+            key: ShoeDTO.key,
+            nome: ShoeDTO.nome,
+            preco: ShoeDTO.preco,
+            img: ShoeDTO.img,
+            tamanhos: ShoeDTO.tamanhos
+        })
+    }
+
+
     async onModuleInit() {
         // Verificar se existem dados na tabela e, caso não existam, criar
         const count = await this.shoeModel.count(); // Conta os registros
         if (count === 0) {
             console.log('Inicializando dados padrão...');
-            await this.createMany(); // Executa a criação de dados
+            const shoeSeeder = new ShoeSeeder(Shoe, Image, this.sequelize);
+            await shoeSeeder.seedDatabase(ShoeList); // Executa a criação de dados
         } else {
             console.log('Dados já existentes no banco.');
         }
@@ -67,7 +81,7 @@ export class ShoesService implements OnModuleInit {
             include: [
                 {
                     model: Image,  // Relacionamento com o modelo Image
-                    required: false,  // As imagens não são obrigatórias, então pode ser false
+                    required: false,  
                 },
             ],
         });
@@ -88,3 +102,4 @@ export class ShoesService implements OnModuleInit {
         });
     }
 }
+
