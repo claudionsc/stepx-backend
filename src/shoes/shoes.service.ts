@@ -5,6 +5,7 @@ import { Image } from "src/images/models/images.model";
 import { Sequelize } from "sequelize-typescript";
 import { ShoeDTO } from "./DTO/shoes";
 import { ShoeList } from "./mock/shoe.mock";
+import { IShoeQueryService } from "./interfaces/shoe.interface";
 
 // Seeder para inicialização de dados
 @Injectable()
@@ -63,7 +64,7 @@ export class ShoeSeeder {
 
 // Consulta
 @Injectable()
-export class ShoesQueryService {
+export class ShoesQueryService implements IShoeQueryService {
 
     constructor(
         @InjectModel(Shoe) private readonly shoeModel: typeof Shoe, // Modelo Shoe
@@ -102,7 +103,6 @@ export class ShoesCommandService implements OnModuleInit {
 
     constructor(
         @InjectModel(Shoe) private readonly shoeModel: typeof Shoe, // Modelo Shoe
-        @InjectModel(Shoe) private readonly imageModel: typeof Image, // Modelo Shoe
         private readonly sequelize: Sequelize
     ) { }
 
